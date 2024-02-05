@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -6,7 +6,8 @@ from dotenv import load_dotenv
 import os
 from openai import OpenAI
 import openai
-from django.contrib import messages
+from django.contrib import messages, auth
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -42,5 +43,28 @@ def ask_openai(message):
 def chatbot(request):
   message = request.data['message']
   response = ask_openai(message)
-  return JsonResponse({'message': message, 'response': response})
+  return JsonResponse({'response': response})
+
+def login(request):
+  return render(request, 'chatbot/login.html')
+
+@api_view(['POST'])
+def register(request):
+  username = request.data['username']
+  email = request.data['email']
+  password1 = request.data['password1']
+  password2 = request.data['password2']
+  if password1 == password2:
+    try:
+      user = User.objects.create_user(username=username, email=email, password=password1)
+      user.save()
+      auth.login(request, user)
+      return redirect('chatbot')
+    except:
+      return JsonResponse({'response': 'Something went wrong! Try again later.'})
+  else:
+    return JsonResponse({'response': 'Passwords do not match'})
+
+def logout(request):
+  return render(request, 'chatbot/logout.html')
 
