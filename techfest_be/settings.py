@@ -54,7 +54,9 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Adjust this to match your React app's origin
+]
 
 ROOT_URLCONF = 'techfest_be.urls'
 

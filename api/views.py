@@ -45,7 +45,7 @@ def details(request):
     home_ownership = request.data['home_ownership']
 
     if request.user.is_authenticated:
-      # try:
+      try:
         details = Details.objects.create(
           user=request.user,
           income=income,
@@ -55,8 +55,8 @@ def details(request):
         )
         details.save()
         return JsonResponse({'response': 'Details saved successfully!'})
-      # except:
-      #   return JsonResponse({'response': 'Error saving details'})
+      except:
+        return JsonResponse({'response': 'Error saving details'})
     else:
       return JsonResponse({'response': 'User not authenticated'})
 
@@ -70,7 +70,6 @@ def details(request):
       return JsonResponse({'details': user_details.values()[0]})  # Adjust as needed
     else:
       return JsonResponse({'response': 'User not authenticated'})
-  # Handle other HTTP methods
   else:
     return JsonResponse({'response': 'Method not allowed'})
 
@@ -83,11 +82,12 @@ def login(request):
     auth.login(request, user)
     return JsonResponse({'response': 'Login successful!'})
   else:
-    return JsonResponse({'response': 'Invalid credentials!'})
+    messages.error(request, 'Invalid credentials')
 
 
-# def logout(request):
-#   return render(request, 'chatbot/logout.html')
+def logout(request):
+  auth.logout(request)
+  
 
 def ask_openai(message):
   try:
@@ -96,7 +96,8 @@ def ask_openai(message):
       messages=[
         {"role": "system", "content": "You are a loan advisor that takes in user input such as annual income and loan ammount and \
          determines if the user's loan request is likely to be approved or rejected. You can also answer general questions about loans."},
-        {"role": "user", "content": message}
+        {"role": "user", "content": message},
+        {"role": "system", "content": "Yes, the loan is likely to be approved. With the data provided (annual income, credit score, and home ownership), explain why the loan is likely to be approved."}
       ],
       temperature=0.6,
     )
