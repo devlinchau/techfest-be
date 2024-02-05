@@ -9,6 +9,3 @@ class Details(models.Model):
   grade = models.CharField(max_length=100)
   employee_length = models.IntegerField()
   home_ownership = models.CharField(max_length=100)
-
-  def __str__(self):
-    return self.user

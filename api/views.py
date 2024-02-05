@@ -29,8 +29,7 @@ def register(request):
       user = User.objects.create_user(username=username, email=email, password=password1)
       user.save()
       auth.login(request, user)
-      # return redirect ('chatbot')
-      return JsonResponse({'response': 'Account created successfully!'})
+      return JsonResponse({'response': 'Account created successfully!', 'username': user.username})
     except:
       return JsonResponse({'response': 'Something went wrong! Try again later.'})
   else:
@@ -45,10 +44,8 @@ def details(request):
     employee_length = request.data['employee_length']
     home_ownership = request.data['home_ownership']
 
-    # Assuming you have a way to associate the details with the current user
-    # For example, you can use the authenticated user associated with the request
     if request.user.is_authenticated:
-      try:
+      # try:
         details = Details.objects.create(
           user=request.user,
           income=income,
@@ -58,27 +55,36 @@ def details(request):
         )
         details.save()
         return JsonResponse({'response': 'Details saved successfully!'})
-      except:
-        return JsonResponse({'response': 'Error saving details'})
+      # except:
+      #   return JsonResponse({'response': 'Error saving details'})
     else:
       return JsonResponse({'response': 'User not authenticated'})
 
-  # Check if the request method is GET
   elif request.method == 'GET':
     # Assuming you want to retrieve details only for the current user
     if request.user.is_authenticated:
       user_details = Details.objects.filter(user=request.user)
-      return JsonResponse({'details': user_details.values()})  # Adjust as needed
+      print(user_details.values())
+      print(user_details.values()[0])
+      print(request.user.username)
+      return JsonResponse({'details': user_details.values()[0]})  # Adjust as needed
     else:
       return JsonResponse({'response': 'User not authenticated'})
-
   # Handle other HTTP methods
   else:
     return JsonResponse({'response': 'Method not allowed'})
 
+@api_view(['POST'])
+def login(request):
+  username = request.data['username']
+  password = request.data['password']
+  user = auth.authenticate(username=username, password=password)
+  if user is not None:
+    auth.login(request, user)
+    return JsonResponse({'response': 'Login successful!'})
+  else:
+    return JsonResponse({'response': 'Invalid credentials!'})
 
-# def login(request):
-#   return render(request, 'chatbot/login.html')
 
 # def logout(request):
 #   return render(request, 'chatbot/logout.html')
