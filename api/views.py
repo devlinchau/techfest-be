@@ -99,7 +99,7 @@ def ask_openai(message):
         'major_purchase', 'credit_card', 'other', 'house', 'medical',\
         'car', 'vacation', 'moving', 'renewable_energy', 'wedding',\
         'educational'). You are to convert this user input into a JSONResponse with the following format and send it back to the user:\
-         {\"loan_amnt\": x, \"int_rate\": x, \"annual_inc\": x, \"term\": \" x\", \"grade\": \"x\", \"purpose\": \"x\", where x are the user's inputs. Make sure to save interest rate as an integer value and include a space before the term value. For example, \" 36 months\" instead of \"36 months\""},
+         {\"loan_amnt\": x, \"int_rate\": x, \"annual_inc\": x, \"term\": \" x\", \"grade\": \"x\", \"purpose\": \"x\", where x are the user's inputs.Make sure to save interest rate as an integer value and include a space before the term value. For example, \" 36 months\" instead of \"36 months\" If you cannot determine the user's input, return an error message starting with the string \"ERROR\""},
         {"role": "user", "content": message},
       ]
   try:
@@ -111,6 +111,8 @@ def ask_openai(message):
     # print(response)
     answer = response.choices[0].message.content.strip()
     # print(answer)
+    if (answer.startswith("ERROR")):
+      return answer
     prediction = predict_view(answer)
     response2 = client.chat.completions.create(
       model = "gpt-3.5-turbo",
